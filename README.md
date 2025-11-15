@@ -1,211 +1,227 @@
-# منصة جدوى للاستشارات - Jadwa Consulting Platform
+# Jadwa Consulting Platform - Full Stack Application
 
-A comprehensive consulting platform connecting clients with consultants, featuring video consultations, chat consultations, feasibility studies, and a powerful admin dashboard.
+A comprehensive full-stack web application connecting clients with consultants, featuring video consultations, real-time chat, feasibility studies, and a powerful admin dashboard.
 
-## Features
+## 🧱 Tech Stack
 
-### Client Interface
-- **Dashboard**: Overview of active consultations, ongoing studies, and spending
-- **Video Consultations**: Browse and book consultants for video sessions
-- **Chat Consultations**: Text-based consultations with file sharing
-- **Study Requests**: Request feasibility studies, economic analysis, and financial reports
-- **Document Management**: Access all uploaded and delivered files
-- **Support System**: Create and track support tickets
-- **Profile Management**: Update personal information
+### Frontend
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Modern styling
+- **Framer Motion** - Smooth animations
+- **Socket.io Client** - Real-time communication
+- **Zustand** - State management
 
-### Consultant Interface
-- **Dashboard**: Overview of sessions, studies, earnings, and ratings
-- **Session Management**: View and manage booked video sessions
-- **Chat Management**: Respond to client chat requests
-- **Study Assignments**: Work on assigned feasibility studies
-- **Earnings Tracking**: View earnings and request payouts
-- **Ratings & Reviews**: View client feedback
+### Backend
+- **Node.js + Express** - RESTful API server (located in `backend/` directory)
+- **Prisma ORM** - Type-safe database access (backend only)
+- **MySQL** - Database
+- **Socket.io** - Real-time WebSocket server
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
 
-### Admin Dashboard
-- **User Management**: Manage clients, consultants, and their accounts
-- **Consultation Oversight**: Monitor all consultations and sessions
-- **Financial Management**: Track payments, approve payouts, generate reports
-- **Support Center**: Manage support tickets from users
-- **Analytics**: View platform statistics and generate reports
-- **Activity Logs**: Audit trail of admin actions
+## 🚀 Features
 
-## Tech Stack
+### 👤 Client Interface
+- ✅ Register/Login (email/password)
+- ✅ Dashboard with statistics
+- ✅ Video Consultation booking
+- ✅ Real-time Chat Consultation
+- ✅ Feasibility Study requests
+- ✅ Economic Analysis & Reports
+- ✅ My Requests tracking
+- ✅ My Documents section
+- ✅ Notifications
+- ✅ Support Ticket System
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth with JWT
-- **Icons**: Lucide React
-- **State Management**: React Context API
+### 👨‍🏫 Consultant Interface
+- ✅ Login (admin-verified)
+- ✅ Dashboard (sessions, chats, balance)
+- ✅ Profile management
+- ✅ Consultation management
+- ✅ Chat with clients
+- ✅ Study assignments
+- ✅ Earnings tracking & payouts
+- ✅ Ratings & reviews
 
-## Database Schema
+### 🧑‍💼 Admin/Operator Dashboard
+- ✅ Secure login with roles
+- ✅ Dashboard overview (stats, revenue)
+- ✅ Users Management
+- ✅ Consultations oversight
+- ✅ Finance management
+- ✅ Reports & Analytics
+- ✅ Support Center
+- ✅ Content Management
+- ✅ Notifications system
+- ✅ Roles Management
+- ✅ Activity Logs
 
-The platform uses 11 main tables:
-- `users` - User accounts and profiles
-- `consultants` - Consultant-specific information
-- `consultations` - Video and chat consultation sessions
-- `messages` - Chat messages
-- `study_requests` - Feasibility studies and reports
-- `payments` - Payment transactions
-- `payouts` - Consultant withdrawal requests
-- `support_tickets` - Customer support tickets
-- `notifications` - In-app notifications
-- `ratings` - Consultant ratings and reviews
-- `admin_logs` - Admin activity logs
+## 📦 Installation
 
-## Security
+### Prerequisites
+- Node.js 18+
+- MySQL 8.0+
+- npm or yarn
 
-- Row Level Security (RLS) enabled on all tables
-- Role-based access control (Client, Consultant, Admin)
-- Secure authentication with JWT tokens
-- Data isolation between users
-- Comprehensive audit logging
+### Backend Setup
 
-## Setup Instructions
+1. Navigate to backend directory:
+```bash
+cd backend
+```
 
-### 1. Install Dependencies
-
-\`\`\`bash
+2. Install dependencies:
+```bash
 npm install
-\`\`\`
+```
 
-### 2. Configure Environment Variables
+3. Configure environment variables:
+```bash
+cp .env.example .env
+```
 
-Create a `.env` file in the project root:
+Edit `.env`:
+```env
+DATABASE_URL="mysql://root:password@localhost:3306/jadwa"
+JWT_SECRET="your-super-secret-jwt-key"
+PORT=3000
+FRONTEND_URL="http://localhost:3001"
+NODE_ENV=development
+```
 
-\`\`\`env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-\`\`\`
+4. Set up database:
+```sql
+CREATE DATABASE jadwa;
+```
 
-### 3. Database Setup
+5. Run Prisma migrations (in backend directory):
+```bash
+cd backend
+npm run prisma:generate
+npm run prisma:migrate
+cd ..
+```
 
-The database migrations have already been applied. The schema includes:
-- All required tables with proper relationships
-- Row Level Security policies for each role
-- Indexes for optimized queries
-
-### 4. Run Development Server
-
-\`\`\`bash
+6. Start backend server:
+```bash
 npm run dev
-\`\`\`
+```
 
-### 5. Build for Production
+Backend runs on `http://localhost:3000`
 
-\`\`\`bash
-npm run build
-\`\`\`
+### Frontend Setup
 
-## User Roles
+1. Install dependencies:
+```bash
+npm install
+```
 
-### Client
-- Can register and login immediately
-- Browse and book consultations
-- Request feasibility studies
-- Track orders and payments
-- Create support tickets
+2. Configure environment variables:
+Create `.env.local`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+```
 
-### Consultant
-- Registration requires admin approval
-- Account status starts as "pending"
-- Must complete profile with credentials
-- Can accept consultation requests
-- Can work on assigned studies
-- Request payouts for earnings
+3. Start development server:
+```bash
+npm run dev
+```
 
-### Admin
-- Full platform access
-- Manage all users and content
-- Approve consultant registrations
-- Process payouts
-- Respond to support tickets
-- View analytics and reports
+Frontend runs on `http://localhost:3001`
 
-## Default Test Users
+## 📁 Project Structure
 
-You'll need to create users through the registration page:
-1. Go to `/register` to create a new account
-2. Choose "Client" or "Consultant" role
-3. For admin access, manually update user role in database to 'admin'
+```
+jadwa/
+├── app/                    # Next.js App Router pages
+│   ├── login/
+│   ├── register/
+│   ├── dashboard/
+│   │   ├── client/
+│   │   ├── consultant/
+│   │   └── admin/
+│   └── layout.tsx
+├── components/             # Reusable React components
+├── lib/                    # Utilities (API, auth, types)
+├── backend/                # Express backend
+│   ├── config/
+│   ├── routes/
+│   ├── middleware/
+│   ├── utils/
+│   ├── prisma/
+│   └── server.js
+└── package.json
+```
 
-## Project Structure
+## 🔌 API Endpoints
 
-\`\`\`
-src/
-├── components/        # Reusable UI components
-│   ├── Button.tsx
-│   ├── Card.tsx
-│   ├── Input.tsx
-│   ├── Navbar.tsx
-│   └── Sidebar.tsx
-├── contexts/          # React Context providers
-│   └── AuthContext.tsx
-├── lib/               # Utilities and configurations
-│   └── supabase.ts
-├── pages/             # Page components
-│   ├── Login.tsx
-│   ├── Register.tsx
-│   ├── client/        # Client interface pages
-│   ├── consultant/    # Consultant interface pages
-│   └── admin/         # Admin interface pages
-├── App.tsx            # Main app component
-└── main.tsx           # Entry point
-\`\`\`
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login
+- `POST /api/auth/verify` - Verify JWT token
 
-## Key Features Implementation Status
+### Generic CRUD
+- `GET /api/:table` - List records
+- `POST /api/:table` - Create record
+- `PUT /api/:table` - Update record
+- `DELETE /api/:table` - Delete record
 
-✅ **Completed**:
-- Database schema with RLS policies
-- User authentication (login/register)
-- Role-based dashboards (Client, Consultant, Admin)
-- Client modules: Video consultations, Studies, Support, Profile
-- Consultant dashboard structure
-- Admin dashboard with statistics
-- Responsive design
-- Arabic RTL support
+### Consultations
+- `GET /api/consultations/my` - List current user's consultations
+- `POST /api/consultations/book` - Create consultation booking (client)
+- `PUT /api/consultations/:id/status` - Update status (consultant/client/admin)
 
-🚧 **Pending** (Future Enhancements):
-- Real-time chat with WebSocket
-- Payment gateway integration (Stripe/Paymob)
-- Video meeting integration (Zoom/WebRTC)
-- File upload to cloud storage
-- Email notifications
-- Advanced analytics and reporting
-- Calendar integration for scheduling
-- Multi-language support
+### Study Requests
+- `GET /api/study-requests/my` - List current user's study requests
+- `POST /api/study-requests` - Create study/economic analysis/report request (client)
+- `PUT /api/study-requests/:id/quote` - Quote (consultant/admin)
+- `PUT /api/study-requests/:id/approve` - Approve quoted request (client/admin)
+- `PUT /api/study-requests/:id/complete` - Mark as completed with deliverables (consultant/admin)
 
-## Design Philosophy
+### Socket.io Events
+- `authenticate` - Authenticate socket connection
+- `join-consultation` - Join consultation room
+- `send-message` - Send chat message
+- `new-message` - Receive new message
+- `mark-read` - Mark message as read
 
-The platform follows modern design principles:
-- Clean, minimal interface
-- Blue and gray color palette (avoiding purple/violet)
-- Responsive design for all screen sizes
-- Clear visual hierarchy
-- Smooth transitions and interactions
-- RTL support for Arabic content
-- Accessible and user-friendly
+## 🎨 Design System
 
-## API Integration Notes
+- **Colors**: Primary blue (#3b82f6), Gray scale
+- **Font**: Inter
+- **Components**: Modern cards, buttons, inputs
+- **Animations**: Framer Motion transitions
+- **Responsive**: Mobile-first design
 
-For future implementation:
+## 🔐 Security
 
-**Payment Gateway**: Configure Stripe or Paymob API keys in environment variables
-**Video Conferencing**: Integrate Zoom API or implement WebRTC for video calls
-**Cloud Storage**: Set up AWS S3 or Supabase Storage for file uploads
-**Email Service**: Configure SMTP or use Supabase Auth email templates
+- JWT-based authentication
+- Password hashing with bcrypt
+- Role-based access control
+- CORS protection
+- Input validation
 
-## Support
+## 📝 Development
 
-For issues or questions:
-1. Check the support ticket system in the platform
-2. Review the database logs in the admin panel
-3. Check browser console for frontend errors
-4. Review Supabase logs for backend issues
+### Backend
+```bash
+cd backend
+npm run dev      # Development with nodemon
+npm start        # Production
+npm run prisma:studio  # Database GUI
+```
 
-## License
+### Frontend
+```bash
+npm run dev      # Development
+npm run build    # Production build
+npm start        # Production server
+```
 
-This project is proprietary and confidential.
+## 📄 License
+
+Proprietary and confidential.
 
 ---
 

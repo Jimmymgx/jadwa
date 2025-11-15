@@ -3,7 +3,7 @@ import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { HelpCircle, Plus } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { from } from '../../lib/database';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function Support() {
@@ -25,11 +25,11 @@ export function Support() {
 
   const loadTickets = async () => {
     try {
-      const { data } = await supabase
-        .from('support_tickets')
+      const { data } = await from('support_tickets')
         .select('*')
         .eq('user_id', user!.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', 'desc')
+        .execute();
 
       if (data) {
         setTickets(data);
@@ -44,7 +44,7 @@ export function Support() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await supabase.from('support_tickets').insert({
+      await from('support_tickets').insert({
         user_id: user!.id,
         ...formData,
       });

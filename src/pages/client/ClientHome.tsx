@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../../components/Card';
 import { Video, MessageSquare, FileText, CheckCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { from } from '../../lib/database';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface Stats {
@@ -29,21 +29,21 @@ export function ClientHome() {
 
   const loadStats = async () => {
     try {
-      const { data: consultations } = await supabase
-        .from('consultations')
+      const { data: consultations } = await from('consultations')
         .select('status, price')
-        .eq('client_id', user!.id);
+        .eq('client_id', user!.id)
+        .execute();
 
-      const { data: studies } = await supabase
-        .from('study_requests')
+      const { data: studies } = await from('study_requests')
         .select('status')
-        .eq('client_id', user!.id);
+        .eq('client_id', user!.id)
+        .execute();
 
-      const { data: payments } = await supabase
-        .from('payments')
+      const { data: payments } = await from('payments')
         .select('amount')
         .eq('user_id', user!.id)
-        .eq('status', 'completed');
+        .eq('status', 'completed')
+        .execute();
 
       const activeConsultations = consultations?.filter(
         (c) => c.status === 'confirmed' || c.status === 'in_progress'

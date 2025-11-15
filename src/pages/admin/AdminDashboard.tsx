@@ -4,7 +4,7 @@ import { Sidebar } from '../../components/Sidebar';
 import { Home, Users, Video, FileText, DollarSign, HelpCircle, Settings, BarChart3 } from 'lucide-react';
 import { Card } from '../../components/Card';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { from } from '../../lib/database';
 
 export function AdminDashboard() {
   const { user } = useAuth();
@@ -23,12 +23,12 @@ export function AdminDashboard() {
 
   const loadStats = async () => {
     try {
-      const { data: users } = await supabase.from('users').select('role');
-      const { data: consultations } = await supabase.from('consultations').select('*');
-      const { data: payments } = await supabase
-        .from('payments')
+      const { data: users } = await from('users').select('role').execute();
+      const { data: consultations } = await from('consultations').select('*').execute();
+      const { data: payments } = await from('payments')
         .select('amount')
-        .eq('status', 'completed');
+        .eq('status', 'completed')
+        .execute();
 
       setStats({
         totalClients: users?.filter((u) => u.role === 'client').length || 0,

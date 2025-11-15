@@ -3,7 +3,7 @@ import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { FileText, Plus } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { from } from '../../lib/database';
 import { useAuth } from '../../contexts/AuthContext';
 
 export function StudyRequests() {
@@ -25,11 +25,11 @@ export function StudyRequests() {
 
   const loadRequests = async () => {
     try {
-      const { data } = await supabase
-        .from('study_requests')
+      const { data } = await from('study_requests')
         .select('*')
         .eq('client_id', user!.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', 'desc')
+        .execute();
 
       if (data) {
         setRequests(data);
@@ -44,7 +44,7 @@ export function StudyRequests() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await supabase.from('study_requests').insert({
+      await from('study_requests').insert({
         client_id: user!.id,
         ...formData,
       });

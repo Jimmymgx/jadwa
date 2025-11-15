@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase, User } from '../lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import { User, from } from '../lib/database';
+import { signUp as authSignUp, signIn as authSignIn, verifySession, getToken, setToken, removeToken } from '../lib/auth';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
+  session: { token: string | null } | null;
   loading: boolean;
   signUp: (email: string, password: string, fullName: string, role: 'client' | 'consultant') => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -16,103 +16,59 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<{ token: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      (async () => {
-        setSession(session);
-        if (session?.user) {
-          await loadUserProfile(session.user.email!);
+    // Check for existing session on mount
+    const token = getToken();
+    if (token) {
+      verifySession(token).then(({ user, error }) => {
+        if (user && !error) {
+          setUser(user);
+          setSession({ token });
+        } else {
+          removeToken();
         }
         setLoading(false);
-      })();
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      (async () => {
-        setSession(session);
-        if (session?.user) {
-          await loadUserProfile(session.user.email!);
-        } else {
-          setUser(null);
-        }
-      })();
-    });
-
-    return () => subscription.unsubscribe();
+      });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
-  const loadUserProfile = async (email: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle();
-
-    if (data) {
-      setUser(data);
-    }
-  };
-
   const signUp = async (email: string, password: string, fullName: string, role: 'client' | 'consultant') => {
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { user, token, error } = await authSignUp(email, password, fullName, role);
+    
+    if (error) throw error;
+    if (!user || !token) throw new Error('Failed to create user');
 
-    if (authError) throw authError;
-
-    if (authData.user) {
-      const { error: profileError } = await supabase.from('users').insert({
-        email,
-        full_name: fullName,
-        role,
-        verified: role === 'client',
-        status: role === 'consultant' ? 'pending' : 'active',
-      });
-
-      if (profileError) throw profileError;
-
-      if (role === 'consultant') {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('id')
-          .eq('email', email)
-          .single();
-
-        if (userData) {
-          await supabase.from('consultants').insert({
-            user_id: userData.id,
-            specialization: '',
-            experience_years: 0,
-          });
-        }
-      }
-    }
+    setToken(token);
+    setUser(user);
+    setSession({ token });
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
+    const { user, token, error } = await authSignIn(email, password);
+    
     if (error) throw error;
+    if (!user || !token) throw new Error('Invalid credentials');
+
+    setToken(token);
+    setUser(user);
+    setSession({ token });
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    removeToken();
     setUser(null);
+    setSession(null);
   };
 
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) return;
 
-    const { error } = await supabase
-      .from('users')
+    const { error } = await from('users')
       .update(updates)
       .eq('id', user.id);
 

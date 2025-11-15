@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
-import { supabase, Consultant } from '../../lib/supabase';
+import { from, Consultant } from '../../lib/database';
 import { Star, Video, Clock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -18,19 +18,13 @@ export function VideoConsultations() {
 
   const loadConsultants = async () => {
     try {
-      const { data, error } = await supabase
-        .from('consultants')
-        .select(`
-          *,
-          users:user_id (
-            id,
-            full_name,
-            email,
-            avatar_url
-          )
-        `)
-        .eq('verified_docs', true)
-        .eq('available', true);
+      // MySQL doesn't support nested selects like Supabase, so we'll do a join
+      const { data, error } = await from('consultants')
+        .select('consultants.*, users.full_name, users.email, users.avatar_url')
+        .join('users', 'consultants.user_id = users.id')
+        .eq('verified_docs', 1) // MySQL uses 1 for true
+        .eq('available', 1) // MySQL uses 1 for true
+        .execute();
 
       if (data) {
         setConsultants(data);
@@ -80,12 +74,12 @@ export function VideoConsultations() {
             <Card key={consultant.id}>
               <div className="text-center space-y-4">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto flex items-center justify-center text-white text-2xl font-bold">
-                  {consultant.users.full_name.charAt(0)}
+                  {consultant.full_name?.charAt(0) || '?'}
                 </div>
 
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">
-                    {consultant.users.full_name}
+                    {consultant.full_name || 'Unknown'}
                   </h3>
                   <p className="text-sm text-gray-600">{consultant.specialization}</p>
                 </div>

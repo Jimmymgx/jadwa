@@ -9,7 +9,7 @@ function AppContent() {
   const { user, loading } = useAuth();
   const path = window.location.pathname;
 
-  if (loading) {
+  if (loading) {   
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
